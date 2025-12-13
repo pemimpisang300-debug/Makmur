@@ -144,6 +144,17 @@
                     <button type="reset" class="btn-secondary" onclick="document.getElementById('master-id').disabled = false; document.getElementById('btn-tambah-sandbed').innerText = 'Tambah Sandbed Baru'; isEditing = false; currentEditId = null;">Reset Form</button>
                 </div>
             </form>
+          <div class="card-body" id="SupervisorAccessControl">
+    <label style="font-size: 1.1em; font-weight: bold;">Mode Supervisor (Akses Edit/Hapus Master Data):</label>
+    <div class="input-group mb-3" style="max-width: 300px;">
+        <input type="password" id="supervisorKeyInput" class="form-control" placeholder="Masukkan Kunci Rahasia">
+        <div class="input-group-append">
+            <button class="btn btn-danger" type="button" id="btnLockUnlock" onclick="verifySupervisorKey()">Buka Kunci</button>
+        </div>
+    </div>
+    <p id="securityStatus" style="color: red; font-weight: bold;">AKSES TERKUNCI</p>
+          </div>
+          
 
             <div class="import-controls">
                 <h3>📤 Import Data Master (CSV)</h3>
