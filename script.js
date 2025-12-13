@@ -2,6 +2,46 @@
 
 const PERIODE_SAAT_INI = new Date(); 
 PERIODE_SAAT_INI.setDate(1); 
+function tambahSandbedBaru() {
+    // --- START: VALIDASI INPUT KERAS ---
+    
+    // 1. Ambil Nilai Input
+    const block = document.getElementById('blockMaster').value;
+    const idSandbed = document.getElementById('idSandbedMaster').value.trim();
+    const bulanTanam = document.getElementById('bulanTanamMaster').value;
+    const jumlahStandar = document.getElementById('jumlahStandarMPMaster').value.trim();
+    const jumlahAfkir = document.getElementById('jumlahAfkirMaster').value.trim();
+    const jumlahSulam = document.getElementById('jumlahSulamMaster').value.trim();
+
+    // 2. Cek Wajib Diisi (Required Check)
+    if (!block || !idSandbed || !bulanTanam || !jumlahStandar || !jumlahAfkir || !jumlahSulam) {
+        alert("VALIDASI GAGAL: Semua kolom Master Data (termasuk ID Sandbed dan Jumlah Standar MP) wajib diisi.");
+        return; // Menghentikan proses penyimpanan
+    }
+
+    // 3. Cek Hanya Angka (Numeric Check)
+    if (isNaN(jumlahStandar) || isNaN(jumlahAfkir) || isNaN(jumlahSulam)) {
+        alert("VALIDASI GAGAL: Kolom Jumlah Standar MP, Jumlah Afkir, dan Jumlah Sulam hanya boleh diisi dengan angka.");
+        return; // Menghentikan proses penyimpanan
+    }
+    
+    // 4. Cek ID Unik (Uniqueness Check)
+    // Asumsi: Fungsi Anda untuk mengambil semua data master bernama 'getDataMasterSandbed()'
+    const masterData = getDataMasterSandbed(); // Pastikan Anda memiliki fungsi ini
+    
+    const isDuplikat = masterData.some(item => item.idSandbed === idSandbed);
+    
+    if (isDuplikat) {
+        alert(`VALIDASI GAGAL: ID Sandbed "${idSandbed}" sudah ada dalam Master Data. Gunakan ID unik.`);
+        return; // Menghentikan proses penyimpanan
+    }
+
+    // --- END: VALIDASI INPUT KERAS ---
+    
+    // Jika semua validasi lulus, lanjutkan dengan kode penyimpanan data Anda yang sudah ada
+    // ... kode Anda untuk menyimpan data ke localStorage
+    // ...
+}
 
 // DATA MASTER (akan ditimpa jika ada data di LocalStorage)
 let masterSandbed = [
