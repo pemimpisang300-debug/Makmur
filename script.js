@@ -4,7 +4,7 @@ const PERIODE_SAAT_INI = new Date();
 PERIODE_SAAT_INI.setDate(1); 
 
 // === START: PENGAMANAN DAN ISOLASI DATA MULTI-NURSERY ===
-const SUPERVISOR_KEY = "makmur2025"; // !!! GANTI DENGAN KUNCI RAHASIA ANDA !!!
+const SUPERVISOR_KEY = "makmur2025"; // !!! KUNCI RAHASIA ANDA !!!
 let isSupervisorMode = false;
 
 let CURRENT_NURSERY_ID = 'DEFAULT'; 
@@ -76,9 +76,14 @@ function loadDataFromLocalStorage() {
     const storedSandbed = localStorage.getItem(sandbedKey);
     const storedPerawatan = localStorage.getItem(perawatanKey);
     
+    // Pastikan masterSandbed dan dataPerawatan menggunakan data yang diisolasi
     if (storedSandbed) {
         masterSandbed = JSON.parse(storedSandbed);
-    } 
+    } else {
+        // Jika tidak ada data yang diisolasi, gunakan data inisial sebagai default awal (HANYA SEKALI)
+        saveDataToLocalStorage();
+    }
+    
     if (storedPerawatan) {
         dataPerawatan = JSON.parse(storedPerawatan);
     }
@@ -158,11 +163,12 @@ window.toggleSupervisorMode = function(mode) {
         document.getElementById('supervisorKeyInput').value = ''; 
     }
     
-    renderMasterSandbedTable(searchMasterInput ? searchMasterInput.value : ''); // Render ulang tabel
+    // Selalu render ulang tabel setelah status keamanan berubah
+    renderMasterSandbedTable(searchMasterInput ? searchMasterInput.value : ''); 
 }
 
 
-// --- FUNGSI RENDER TABEL MASTER (MODIFIED untuk Keamanan) ---
+// --- FUNGSI RENDER TABEL MASTER ---
 let isEditing = false; 
 let currentEditId = null;
 
@@ -180,7 +186,7 @@ function renderMasterSandbedTable(searchText = '') {
     const displayData = filteredMasterData; 
 
     if (displayData.length === 0) {
-        masterSandbedBody.innerHTML = '<tr><td colspan="12" style="text-align: center;">Tidak ada Sandbed yang cocok dengan kriteria pencarian.</td></tr>';
+        masterSandbedBody.innerHTML = '<tr><td colspan="12" style="text-align: center;">Tidak ada Sandbed yang tercatat.</td></tr>';
         return;
     }
 
@@ -284,7 +290,7 @@ function renderTable(searchText = '') {
     const displayData = filteredData; 
 
     if (displayData.length === 0) {
-        riwayatBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Tidak ada data yang cocok dengan kriteria pencarian.</td></tr>';
+        riwayatBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Tidak ada riwayat perawatan yang tercatat.</td></tr>';
         return;
     }
 
@@ -301,7 +307,7 @@ function renderTable(searchText = '') {
     });
 }
 
-// --- FUNGSI SORTING MASTER SANDBED (Disesuaikan agar menggunakan data terbaru) ---
+// --- FUNGSI SORTING MASTER SANDBED ---
 window.sortTableMaster = function(columnIndex) {
     if (currentSortColumnMaster === columnIndex) {
         sortDirectionMaster *= -1; 
@@ -360,10 +366,9 @@ window.sortTableMaster = function(columnIndex) {
 }
 
 
-// --- FUNGSI IMPORT DAN EXPORT MASTER SANDBED (Tidak ada perubahan signifikan) ---
+// --- FUNGSI IMPORT DAN EXPORT MASTER SANDBED ---
 
 function downloadCsvTemplate() {
-    // ... (kode downloadCsvTemplate tidak berubah) ...
     const headers = ["Block", "id", "clone", "bulanTanam", "stdQty", "afkir", "sulam"];
     const exampleData = [
         "Block E", "MKRUS501", "AC00555AA", "2024-06", "2352", "0", "0",
@@ -384,7 +389,6 @@ function downloadCsvTemplate() {
 }
 
 function importCsvData() {
-    // ... (kode importCsvData dimodifikasi agar menggunakan getDataMasterSandbed() dan saveDataToLocalStorage() yang sudah multi-nursery) ...
     const file = importFile.files[0];
     if (!file) {
         alert("Pilih file CSV terlebih dahulu.");
@@ -499,7 +503,7 @@ btnImportData.addEventListener('click', importCsvData);
 
 
 // EVENT LISTENER MASTER SANDBED (Tambah/Update) 
-// *** BLOK INI TELAH DIPERBAIKI UNTUK MEMASTIKAN REFRESH TABEL BERHASIL ***
+// *** BLOK INI TELAH DIPERBAIKI UNTUK MEMASTIKAN REFRESH TABEL BERHASIL DAN MENAMBAHKAN VALIDASI LENGKAP***
 formMasterSandbed.addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -523,4 +527,5 @@ formMasterSandbed.addEventListener('submit', function(e) {
     }
     
     const stdQty = parseInt(stdQtyStr);
-    const afkir = par
+    const afkir = parseInt(afkirStr);
+    const sulam = pa
