@@ -440,6 +440,67 @@ function importCsvData() {
 
 
 // --- EVENT LISTENERS ---
+// EVENT LISTENER MASTER SANDBED (Tambah/Update) 
+formMasterSandbed.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // ... (VALIDASI INPUT KERAS - Tetap di sini) ...
+    // [KODE VALIDASI INPUT KERAS ANDA TETAP DI SINI]
+    
+    // ... (LANJUTKAN) ...
+    
+    const stdQty = parseInt(stdQtyStr);
+    const afkir = parseInt(afkirStr);
+    const sulam = parseInt(sulamStr);
+    
+    // --- START: MODIFIKASI BLOK INI ---
+    if (isEditing) {
+        if (!isSupervisorMode) {
+             alert('Akses ditolak. Masuk mode Supervisor untuk mengubah Master Data.');
+             return;
+        }
+        
+        const index = masterSandbed.findIndex(sandbed => sandbed.id === currentEditId);
+        if (index !== -1) {
+            // [LOGIKA UPDATE DATA]
+            masterSandbed[index].block = block;
+            masterSandbed[index].clone = clone;
+            masterSandbed[index].bulanTanam = bulanTanam;
+            masterSandbed[index].stdQty = stdQty;
+            masterSandbed[index].afkir = afkir;
+            masterSandbed[index].sulam = sulam;
+            alert(`Data Sandbed ID ${id} berhasil diperbarui (Update)!`);
+        }
+        isEditing = false;
+        currentEditId = null;
+        document.getElementById('master-id').disabled = false;
+        document.getElementById('btn-tambah-sandbed').innerText = 'Tambah Sandbed Baru';
+
+    } else {
+        // PENGECEKAN MODE SUPERVISOR (Tambah Baru)
+        if (!isSupervisorMode) {
+             alert('Akses ditolak. Masuk mode Supervisor untuk menambah Master Data baru.');
+             return;
+        }
+
+        // Cek ID Unik
+        const isDuplicate = masterSandbed.some(sandbed => sandbed.id === id);
+        if (isDuplicate) {
+            alert(`VALIDASI GAGAL: Sandbed ID ${id} sudah ada dalam daftar. Gunakan ID unik.`);
+            return;
+        }
+
+        const newSandbed = { block, id, plot: 'N/A', clone, bulanTanam, stdQty, afkir, sulam };
+        masterSandbed.push(newSandbed);
+        alert(`Sandbed ID ${id} berhasil ditambahkan!`);
+    }
+
+    // --- KODE INI DIPASTIKAN SELALU TERJALAN JIKA VALIDASI LULUS ---
+    saveDataToLocalStorage(); 
+    formMasterSandbed.reset();
+    renderMasterSandbedTable();
+});
+// --- END: MODIFIKASI BLOK INI ---
 
 // NEW: Event Listeners untuk Header Info
 nurseryInput.addEventListener('input', function() {
@@ -468,35 +529,7 @@ importFile.addEventListener('change', function() {
 btnImportData.addEventListener('click', importCsvData);
 
 
-// EVENT LISTENER MASTER SANDBED (Tambah/Update) 
-formMasterSandbed.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // --- START: VALIDASI INPUT KERAS (diulang di sini untuk fungsi utama) ---
-    const block = document.getElementById('master-block').value;
-    const id = document.getElementById('master-id').value.toUpperCase(); 
-    const clone = document.getElementById('master-clone').value;
-    const bulanTanam = document.getElementById('master-bulan-tanam').value;
-    const stdQtyStr = document.getElementById('master-std-qty').value.trim();
-    const afkirStr = document.getElementById('master-afkir').value.trim();
-    const sulamStr = document.getElementById('master-sulam').value.trim();
 
-    // 1. Cek Wajib Diisi (Required Check)
-    if (!block || !id || !bulanTanam || !stdQtyStr || !afkirStr || !sulamStr) {
-        alert("VALIDASI GAGAL: Semua kolom Master Data wajib diisi.");
-        return; 
-    }
-
-    // 2. Cek Hanya Angka (Numeric Check)
-    if (isNaN(stdQtyStr) || isNaN(afkirStr) || isNaN(sulamStr)) {
-        alert("VALIDASI GAGAL: Kolom Jumlah Standar MP, Afkir, dan Sulam hanya boleh diisi dengan angka.");
-        return; 
-    }
-    
-    const stdQty = parseInt(stdQtyStr);
-    const afkir = parseInt(afkirStr);
-    const sulam = parseInt(sulamStr);
-    
     // --- END: VALIDASI INPUT KERAS ---
 
     if (isEditing) {
