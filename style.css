@@ -1,0 +1,273 @@
+/* GANTI SELURUH ISI TAG <style> DENGAN KODE DI BAWAH INI */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+/* --- NEW: HEADER INFO STYLES --- */
+.header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    flex-wrap: wrap; 
+}
+
+.header-group {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.header-group label {
+    font-weight: normal;
+    color: white;
+    margin-right: 10px;
+    /* Font size kecil agar tetap rapi */
+    font-size: 0.9em; 
+}
+
+.header-group input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+    box-sizing: border-box;
+    font-size: 0.9em;
+    color: #333;
+}
+
+/* --- MAIN CONTENT STYLES --- */
+
+main {
+    padding: 20px;
+}
+
+section {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-x: auto; 
+}
+
+h2 {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* --- FORM STYLES --- */
+
+.form-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.95em;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Untuk tombol edit/hapus di tabel */
+.btn-edit-master {
+    background-color: #ffc107;
+    color: #333;
+    margin-right: 5px;
+    padding: 5px 10px;
+}
+
+.btn-edit-master:hover {
+    background-color: #e0a800;
+}
+
+.btn-hapus-master {
+    background-color: #dc3545;
+    padding: 5px 10px;
+}
+
+.btn-hapus-master:hover {
+    background-color: #c82333;
+}
+
+
+/* --- TABLE STYLES --- */
+
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 15px;
+    min-width: 100%; 
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    min-width: 800px; 
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px 8px;
+    text-align: left;
+    white-space: nowrap; 
+}
+
+th {
+    background-color: #e9ecef;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer; 
+}
+
+th:hover {
+    background-color: #dee2e6;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* --- UTILITY & SEARCH --- */
+
+.search-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.search-controls input {
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.import-controls {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.import-controls button {
+    margin-top: 10px;
+}
+
+.file-info {
+    margin-top: 10px;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Responsiveness adjustments */
+@media (max-width: 600px) {
+    .header-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-group {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .header-group input[type="text"] {
+        flex-grow: 1;
+        max-width: 60%;
+    }
+    .form-container {
+        grid-template-columns: 1fr;
+    }
+
+    button {
+        width: 100%;
+    }
+}
