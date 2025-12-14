@@ -3,9 +3,9 @@
 const PERIODE_SAAT_INI = new Date(); 
 PERIODE_SAAT_INI.setDate(1); 
 
-// === PENGAMANAN DAN ISOLASI DATA MULTI-NURSERY (FIREBASE) ===
-let isSupervisorMode = true; 
+// === PENGAMANAN DAN ISOLASI DATA MULTI-NURSERY ===
 
+let isSupervisorMode = true; 
 let CURRENT_NURSERY_ID = 'DEFAULT'; 
 
 function getURLNurseryID() {
@@ -30,7 +30,7 @@ if (h1Element) {
     h1Element.innerText = `Monitoring Sandbed Stoolplant (Nursery ID: ${CURRENT_NURSERY_ID})`;
 }
 
-// Data inisial (akan ditimpa jika berhasil terhubung ke Firebase)
+// Data inisial 
 let masterSandbed = []; 
 let dataPerawatan = []; 
 let nurseryName = "";
@@ -56,56 +56,65 @@ const btnImportData = document.getElementById('btn-import-data');
 const fileInfo = document.getElementById('file-info');
 
 
-// --- FUNGSI FIREBASE (PENGGANTI LOCAL STORAGE) ---
+// --- FUNGSI LOCAL STORAGE (Penyimpanan Lokal/Offline) ---
 
-function saveMasterSandbedToFirebase() {
-    // Fungsi SET akan menimpa seluruh array Master Sandbed di path Nursery yang aktif
-    database.ref('MasterSandbed/' + CURRENT_NURSERY_ID).set(masterSandbed)
-        .catch(error => console.error("Firebase Save Error (Master):", error));
+function saveMasterSandbedToLocalStorage() {
+    try {
+        const key = `masterSandbed_${CURRENT_NURSERY_ID}`;
+        localStorage.setItem(key, JSON.stringify(masterSandbed));
+    } catch (e) {
+        console.error("Error saving master sandbed to Local Storage", e);
+    }
 }
 
-function savePerawatanToFirebase() {
-    // Fungsi SET akan menimpa seluruh array Riwayat Perawatan di path Nursery yang aktif
-    database.ref('RiwayatPerawatan/' + CURRENT_NURSERY_ID).set(dataPerawatan)
-        .catch(error => console.error("Firebase Save Error (Perawatan):", error));
+function savePerawatanToLocalStorage() {
+    try {
+        const key = `dataPerawatan_${CURRENT_NURSERY_ID}`;
+        localStorage.setItem(key, JSON.stringify(dataPerawatan));
+    } catch (e) {
+        console.error("Error saving perawatan data to Local Storage", e);
+    }
 }
 
-function saveHeaderInfoToFirebase() {
-    const info = { nurseryName: nurseryInput.value, supervisorName: supervisorInput.value };
-    // Fungsi SET akan menimpa info header
-    database.ref('NurseryInfo/' + CURRENT_NURSERY_ID).set(info)
-        .catch(error => console.error("Firebase Save Error (Info):", error));
+function saveHeaderInfoToLocalStorage() {
+    try {
+        const info = { nurseryName: nurseryInput.value, supervisorName: supervisorInput.value };
+        const key = `headerInfo_${CURRENT_NURSERY_ID}`;
+        localStorage.setItem(key, JSON.stringify(info));
+    } catch (e) {
+        console.error("Error saving header info to Local Storage", e);
+    }
 }
 
-
-function loadDataFromFirebase() {
-    // 1. Master Sandbed - LISTEN PERUBAHAN REALTIME
-    database.ref('MasterSandbed/' + CURRENT_NURSERY_ID).on('value', (snapshot) => {
-        const data = snapshot.val();
-        // Mengkonversi objek Firebase menjadi Array jika diperlukan
-        masterSandbed = (data && typeof data === 'object' && !Array.isArray(data)) ? Object.values(data) : data || [];
+function loadDataFromLocalStorage() {
+    try {
+        // 1. Master Sandbed
+        const masterKey = `masterSandbed_${CURRENT_NURSERY_ID}`;
+        const masterStored = localStorage.getItem(masterKey);
+        masterSandbed = masterStored ? JSON.parse(masterStored) : [];
         
-        renderMasterSandbedTable(searchMasterInput.value || '');
-        updateBlockSelectOptions();
+        // 2. Riwayat Perawatan
+        const perawatanKey = `dataPerawatan_${CURRENT_NURSERY_ID}`;
+        const perawatanStored = localStorage.getItem(perawatanKey);
+        dataPerawatan = perawatanStored ? JSON.parse(perawatanStored) : [];
         
-        // Disable Nursery Name input, tapi isi valuenya dengan ID Nursery
-        nurseryInput.value = CURRENT_NURSERY_ID;
-        nurseryName = CURRENT_NURSERY_ID;
-    });
-
-    // 2. Riwayat Perawatan - LISTEN PERUBAHAN REALTIME
-    database.ref('RiwayatPerawatan/' + CURRENT_NURSERY_ID).on('value', (snapshot) => {
-        const data = snapshot.val();
-        dataPerawatan = (data && typeof data === 'object' && !Array.isArray(data)) ? Object.values(data) : data || [];
-        renderTable(searchInput.value || '');
-    });
-
-    // 3. Header Info (Supervisor Name) - LOAD SEKALI
-    database.ref('NurseryInfo/' + CURRENT_NURSERY_ID).once('value', (snapshot) => {
-        const info = snapshot.val() || {};
+        // 3. Header Info
+        const infoKey = `headerInfo_${CURRENT_NURSERY_ID}`;
+        const infoStored = localStorage.getItem(infoKey);
+        const info = infoStored ? JSON.parse(infoStored) : {};
+        
         supervisorName = info.supervisorName || '';
         supervisorInput.value = supervisorName;
-    });
+        nurseryInput.value = CURRENT_NURSERY_ID;
+
+        // Render data yang sudah dimuat
+        renderMasterSandbedTable(searchMasterInput.value || '');
+        renderTable(searchInput.value || '');
+        updateBlockSelectOptions();
+        
+    } catch (e) {
+        console.error("Error loading data from Local Storage", e);
+    }
 }
 
 
@@ -132,6 +141,7 @@ function updateBlockSelectOptions() {
     const validMasterSandbed = masterSandbed.filter(item => item && item.block);
     const uniqueBlocks = [...new Set(validMasterSandbed.map(item => item.block))].sort();
     
+    // Kosongkan Select Block (kecuali opsi pertama)
     while (selectBlock.options.length > 1) {
         selectBlock.remove(1);
     }
@@ -185,7 +195,6 @@ function renderMasterSandbedTable(searchText = '') {
 
         const actionCell = row.insertCell(11); 
         
-        // Mode Edit/Hapus Selalu Aktif
         const editButton = document.createElement('button');
         editButton.innerText = 'Edit';
         editButton.classList.add('btn-edit-master');
@@ -233,10 +242,11 @@ function deleteSandbed(event) {
     if (confirm(`Apakah Anda yakin ingin menghapus Sandbed ID: ${idToDelete}?`)) {
         masterSandbed = masterSandbed.filter(sandbed => sandbed.id !== idToDelete);
         
-        saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
+        saveMasterSandbedToLocalStorage(); // <--- LOCAL SAVE
         alert(`Sandbed ID ${idToDelete} berhasil dihapus.`);
         
-        // Render ulang data akan dipicu oleh listener Firebase secara otomatis
+        renderMasterSandbedTable(searchMasterInput.value);
+        updateBlockSelectOptions(); 
     }
 }
 
@@ -332,7 +342,7 @@ window.sortTableMaster = function(columnIndex) {
 // Event Listeners untuk Header Info
 supervisorInput.addEventListener('input', function() {
     supervisorName = this.value;
-    saveHeaderInfoToFirebase(); // <--- FIREBASE SAVE
+    saveHeaderInfoToLocalStorage(); // <--- LOCAL SAVE
 });
 
 
@@ -387,8 +397,10 @@ formMasterSandbed.addEventListener('submit', function(e) {
         alert(`Sandbed ID ${id} berhasil ditambahkan!`);
     }
 
-    saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
+    saveMasterSandbedToLocalStorage(); // <--- LOCAL SAVE
     formMasterSandbed.reset();
+    renderMasterSandbedTable(searchMasterInput.value);
+    updateBlockSelectOptions(); 
 });
 
 
@@ -415,10 +427,11 @@ formPerawatan.addEventListener('submit', function(e) {
     };
 
     dataPerawatan.push(dataBaru);
-    savePerawatanToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
+    savePerawatanToLocalStorage(); // <--- LOCAL SAVE
     formPerawatan.reset();
     
     alert(`Perawatan ${jenisPerawatan} di ${block} berhasil direkam!`);
+    renderTable(searchInput.value);
 });
 
 
@@ -439,11 +452,9 @@ btnDownloadFormat.addEventListener('click', function() {
     const dataToExport = masterSandbed; 
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
 
-    // Header CSV (Ganti Plot dengan Clone jika perlu)
     const headers = ["Block", "ID Sandbed", "Clone", "Bulan Tanam", "Std Qty", "Afkir", "Sulam"];
     csvContent += headers.join(";") + "\r\n";
 
-    // Data CSV
     dataToExport.forEach(item => {
         const row = [
             `"${item.block}"`, 
@@ -461,7 +472,7 @@ btnDownloadFormat.addEventListener('click', function() {
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", `MasterSandbed_${CURRENT_NURSERY_ID}_Export.csv`);
-    document.body.appendChild(link); // Diperlukan untuk Firefox
+    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 });
@@ -494,7 +505,6 @@ btnImportData.addEventListener('click', function() {
             return;
         }
 
-        // Asumsi format CSV: Block;ID Sandbed;Clone;Bulan Tanam;Std Qty;Afkir;Sulam
         const importedData = [];
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(';'); 
@@ -511,16 +521,20 @@ btnImportData.addEventListener('click', function() {
             }
         }
 
-        if (confirm(`Akan mengimpor/menimpa ${importedData.length} data Master Sandbed. Lanjutkan? Data akan disimpan ke Firebase.`)) {
+        if (confirm(`Akan mengimpor/menimpa ${importedData.length} data Master Sandbed. Lanjutkan? Data akan disimpan secara lokal.`)) {
             masterSandbed = importedData; 
-            saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
+            saveMasterSandbedToLocalStorage(); // <--- LOCAL SAVE
             
-            alert(`${importedData.length} data berhasil diimpor dan disimpan ke Firebase.`);
+            renderMasterSandbedTable(searchMasterInput.value);
+            updateBlockSelectOptions(); 
+            alert(`${importedData.length} data berhasil diimpor dan disimpan secara lokal.`);
         }
     };
     reader.readAsText(file);
 });
 
 
-// --- INITIAL CALLS ---
-loadDataFromFirebase(); // Mulai memuat data dari Firebase
+// --- INITIAL CALLS (Memuat data saat aplikasi pertama kali dibuka) ---
+loadDataFromLocalStorage();
+
+
