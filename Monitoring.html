@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Monitoring Sandbed Stoolplant</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Monitoring Sandbed Stoolplant</h1>
+        
+        <div class="header-info">
+            <div class="header-group">
+                <label for="nursery-name">Nursery :</label>
+                <input type="text" id="nursery-name" placeholder="Nama Nursery">
+            </div>
+            <div class="header-group">
+                <label for="supervisor-name">Supervisor Stoolplant :</label>
+                <input type="text" id="supervisor-name" placeholder="Nama Supervisor">
+            </div>
+        </div>
+    </header>
+
+    <main>
+        
+        <section id="input-perawatan">
+            <h2>📝 Input Data Perawatan</h2>
+            <form id="form-perawatan">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="Block">Block/Lokasi (Sandbed):</label>
+                        <select id="Block" required>
+                            <option value="">-- Pilih Blok --</option>
+                            </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tgl-perawatan">Tanggal Perawatan:</label>
+                        <input type="date" id="tgl-perawatan" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jenis-perawatan">Jenis Aplikasi:</label>
+                        <select id="jenis-perawatan" required>
+                            <option value="">-- Pilih Jenis --</option>
+                            <option value="Insektisida">Insektisida</option>
+                            <option value="Fungisida">Fungisida</option>
+                            <option value="Pemupukan">Pemupukan</option>
+                            <option value="Herbisida">Herbisida</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Material-yang-digunakan">Material yang digunakan:</label>
+                        <input type="text" id="Material-yang-digunakan" required placeholder="Contoh: Endure, NPK Tinggi">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bahan-aktif">Bahan Aktif:</label>
+                        <input type="text" id="bahan-aktif" required placeholder="Contoh: Spinetoram, NPK 29,10,10">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dosis">Dosis:</label>
+                        <input type="text" id="dosis" required placeholder="Contoh: 2 ml/liter atau 3 gr/stool">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="catatan">Catatan/Keterangan Tambahan:</label>
+                    <textarea id="catatan" placeholder="Aplikasi Manual, Cuaca Berangin, dll (Opsional)"></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit">Rekam Data Perawatan</button>
+                    <button type="reset" class="btn-secondary">Reset Form</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="master-data-sandbed">
+            <h2>Master Data Sandbed</h2>
+
+            <form id="form-master-sandbed">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="master-block">Block/Lokasi (Sandbed):</label>
+                        <select id="master-block" required> 
+                            <option value="">-- Pilih Block --</option>
+                            <option value="Block A">Block A</option>
+                            <option value="Block B">Block B</option>
+                            <option value="Block C">Block C</option>
+                            <option value="Block D">Block D</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="master-id">ID Sandbed (Wajib Unik):</label>
+                        <input type="text" id="master-id" required placeholder="Contoh: MKRUS501">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="master-clone">Clone:</label>
+                        <input type="text" id="master-clone" required placeholder="Contoh: AC00065AA">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="master-bulan-tanam">Bulan Tanam:</label>
+                        <input type="month" id="master-bulan-tanam" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="master-std-qty">Jumlah Standar MP:</label>
+                        <input type="number" id="master-std-qty" required min="0" placeholder="Contoh: 2352">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="master-afkir">Afkir:</label>
+                        <input type="number" id="master-afkir" required min="0" placeholder="Contoh: 150">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="master-sulam">Sulam:</label>
+                        <input type="number" id="master-sulam" required min="0" placeholder="Contoh: 5">
+                    </div>
+                </div>
+                
+                <button type="submit" id="btn-tambah-sandbed">Tambah Sandbed Baru</button>
+            </form>
+            
+            <div class="import-controls">
+                <h4>Import/Export Master Sandbed</h4>
+                <div class="action-buttons">
+                    <button class="btn-import" id="btn-download-format">Download Format CSV (Pemisah: Titik Koma)</button>
+                </div>
+                <input type="file" id="import-file" accept=".csv" style="margin-top: 10px;">
+                <span id="file-info" style="display: block; font-size: 0.9em; margin-top: 5px;"></span>
+                <button class="btn-import" id="btn-import-data">Import & Update Data</button>
+            </div>
+
+
+            <h3 style="margin-top: 40px;">Daftar Master Sandbed (Klik baris untuk Edit/Hapus)</h3>
+            <div class="search-controls">
+                <input type="text" id="search-master-input" placeholder="Cari Master Sandbed (ID, Block, Clone)...">
+            </div>
+
+            <div class="table-responsive">
+                <table id="table-sandbed-list">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTableMaster(0)">No</th>
+                            <th onclick="sortTableMaster(1)">Block</th>
+                            <th onclick="sortTableMaster(2)">ID Sandbed</th>
+                            <th onclick="sortTableMaster(3)">Clone</th>
+                            <th onclick="sortTableMaster(4)">Bulan Tanam</th>
+                            <th>Umur (Bulan)</th>
+                            <th onclick="sortTableMaster(6)">Std Qty</th>
+                            <th onclick="sortTableMaster(7)">Afkir</th>
+                            <th onclick="sortTableMaster(8)">Sulam</th>
+                            <th onclick="sortTableMaster(9)">Total Stock</th>
+                            <th onclick="sortTableMaster(10)">Stocking Rate</th>
+                            <th>Aksi</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top: 40px;">Riwayat Perawatan yang Tercatat</h3>
+            <div class="search-controls">
+                <input type="text" id="search-input" placeholder="Cari Riwayat (Block, Jenis, Material, Bahan Aktif)...">
+            </div>
+
+            <div class="table-responsive">
+                <table id="table-riwayat-perawatan">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Block</th>
+                            <th>Jenis Aplikasi</th>
+                            <th>Material</th>
+                            <th>Bahan Aktif</th>
+                            <th>Dosis</th>
+                            <th>Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+    
+    <script src="./script.js"></script> 
+
+</body>
+  </html>
