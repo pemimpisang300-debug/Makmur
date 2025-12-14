@@ -197,35 +197,29 @@
         </table>
     </div>
 
-        </section>
-        </main>
+                </section>
+
+    </main>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <script>
-        // 2. PASTE KONFIGURASI FIREBASE ANDA DI SINI
-      //Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBrJcVh3GJfY9WGzjDAYODlVSY2QI5JTXc",
+        // 2. KONFIGURASI FIREBASE ANDA (SUDAH DIBERSIHKAN)
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
+          apiKey: "AIzaSyBrJcVh3GJfY9WGzjDAYODlVSY2QI5JTXc",
+          // Mohon pastikan 5 baris di bawah ini sesuai dengan console Firebase Anda:
+          authDomain: "monitoring-stoolplant.firebaseapp.com", 
+          databaseURL: "https://monitoring-stoolplant-default-rtdb.asia-southeast1.firebasedatabase.app", 
+          projectId: "monitoring-stoolplant", 
+          storageBucket: "monitoring-stoolplant.appspot.com",
+          messagingSenderId: "..."
+          // Anda bisa menghapus nilai yang tidak Anda gunakan (seperti appId, measurementId, dll)
         };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const database = app.database();
+        const database = app.database(); // Inisialisasi Database
     </script>
     
     <script src="./script.js"></script> 
