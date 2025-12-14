@@ -59,17 +59,20 @@ const fileInfo = document.getElementById('file-info');
 // --- FUNGSI FIREBASE (PENGGANTI LOCAL STORAGE) ---
 
 function saveMasterSandbedToFirebase() {
+    // Fungsi SET akan menimpa seluruh array Master Sandbed di path Nursery yang aktif
     database.ref('MasterSandbed/' + CURRENT_NURSERY_ID).set(masterSandbed)
         .catch(error => console.error("Firebase Save Error (Master):", error));
 }
 
 function savePerawatanToFirebase() {
+    // Fungsi SET akan menimpa seluruh array Riwayat Perawatan di path Nursery yang aktif
     database.ref('RiwayatPerawatan/' + CURRENT_NURSERY_ID).set(dataPerawatan)
         .catch(error => console.error("Firebase Save Error (Perawatan):", error));
 }
 
 function saveHeaderInfoToFirebase() {
     const info = { nurseryName: nurseryInput.value, supervisorName: supervisorInput.value };
+    // Fungsi SET akan menimpa info header
     database.ref('NurseryInfo/' + CURRENT_NURSERY_ID).set(info)
         .catch(error => console.error("Firebase Save Error (Info):", error));
 }
@@ -100,7 +103,6 @@ function loadDataFromFirebase() {
     // 3. Header Info (Supervisor Name) - LOAD SEKALI
     database.ref('NurseryInfo/' + CURRENT_NURSERY_ID).once('value', (snapshot) => {
         const info = snapshot.val() || {};
-        // Nursery Name sudah diisi dari CURRENT_NURSERY_ID
         supervisorName = info.supervisorName || '';
         supervisorInput.value = supervisorName;
     });
@@ -127,13 +129,9 @@ function hitungStockingRate(totalStock, stdQty) {
 }
 
 function updateBlockSelectOptions() {
-    // Memastikan tidak ada nilai null/undefined di masterSandbed
     const validMasterSandbed = masterSandbed.filter(item => item && item.block);
-    
-    // Mendapatkan Block unik dan mengurutkannya
     const uniqueBlocks = [...new Set(validMasterSandbed.map(item => item.block))].sort();
     
-    // Kosongkan Select Block (kecuali opsi pertama)
     while (selectBlock.options.length > 1) {
         selectBlock.remove(1);
     }
@@ -235,10 +233,10 @@ function deleteSandbed(event) {
     if (confirm(`Apakah Anda yakin ingin menghapus Sandbed ID: ${idToDelete}?`)) {
         masterSandbed = masterSandbed.filter(sandbed => sandbed.id !== idToDelete);
         
-        saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE
+        saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
         alert(`Sandbed ID ${idToDelete} berhasil dihapus.`);
         
-        // Render ulang data akan dipicu oleh listener Firebase
+        // Render ulang data akan dipicu oleh listener Firebase secara otomatis
     }
 }
 
@@ -272,7 +270,7 @@ function renderTable(searchText = '') {
     });
 }
 
-// --- FUNGSI SORTING MASTER SANDBED (TIDAK BERUBAH) ---
+// --- FUNGSI SORTING MASTER SANDBED ---
 window.sortTableMaster = function(columnIndex) {
     if (currentSortColumnMaster === columnIndex) {
         sortDirectionMaster *= -1; 
@@ -332,7 +330,6 @@ window.sortTableMaster = function(columnIndex) {
 // --- EVENT LISTENERS ---
 
 // Event Listeners untuk Header Info
-// Nursery Name disabled, hanya Supervisor Name yang bisa diubah
 supervisorInput.addEventListener('input', function() {
     supervisorName = this.value;
     saveHeaderInfoToFirebase(); // <--- FIREBASE SAVE
@@ -390,10 +387,8 @@ formMasterSandbed.addEventListener('submit', function(e) {
         alert(`Sandbed ID ${id} berhasil ditambahkan!`);
     }
 
-    saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE
+    saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
     formMasterSandbed.reset();
-    
-    // Render ulang data akan dipicu oleh listener Firebase
 });
 
 
@@ -420,12 +415,10 @@ formPerawatan.addEventListener('submit', function(e) {
     };
 
     dataPerawatan.push(dataBaru);
-    savePerawatanToFirebase(); // <--- FIREBASE SAVE
+    savePerawatanToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
     formPerawatan.reset();
     
     alert(`Perawatan ${jenisPerawatan} di ${block} berhasil direkam!`);
-    
-    // Render ulang data akan dipicu oleh listener Firebase
 });
 
 
@@ -520,9 +513,7 @@ btnImportData.addEventListener('click', function() {
 
         if (confirm(`Akan mengimpor/menimpa ${importedData.length} data Master Sandbed. Lanjutkan? Data akan disimpan ke Firebase.`)) {
             masterSandbed = importedData; 
-            saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE
-            
-            // Render ulang data akan dipicu oleh listener Firebase
+            saveMasterSandbedToFirebase(); // <--- FIREBASE SAVE: Menyimpan perubahan ke cloud
             
             alert(`${importedData.length} data berhasil diimpor dan disimpan ke Firebase.`);
         }
