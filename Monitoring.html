@@ -15,7 +15,7 @@
         <div class="header-info">
             <div class="header-group">
                 <label for="nursery-name">Nursery :</label>
-                <input type="text" id="nursery-name" placeholder="Nama Nursery">
+                <input type="text" id="nursery-name" placeholder="Nama Nursery" disabled>
             </div>
             <div class="header-group">
                 <label for="supervisor-name">Supervisor Stoolplant :</label>
@@ -95,6 +95,7 @@
                             <option value="Block B">Block B</option>
                             <option value="Block C">Block C</option>
                             <option value="Block D">Block D</option>
+                            <option value="MPH Temporary">MPH Temporary</option>
                         </select>
                     </div>
 
@@ -139,11 +140,11 @@
                 </div>
                 <input type="file" id="import-file" accept=".csv" style="margin-top: 10px;">
                 <span id="file-info" style="display: block; font-size: 0.9em; margin-top: 5px;"></span>
-                <button class="btn-import" id="btn-import-data">Import & Update Data</button>
+                <button class="btn-import" id="btn-import-data" disabled>Import & Update Data</button>
             </div>
 
 
-            <h3 style="margin-top: 40px;">Daftar Master Sandbed (Klik baris untuk Edit/Hapus)</h3>
+            <h3 style="margin-top: 40px;">Daftar Master Sandbed</h3>
             <div class="search-controls">
                 <input type="text" id="search-master-input" placeholder="Cari Master Sandbed (ID, Block, Clone)...">
             </div>
@@ -201,14 +202,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <script>
-        // 2. KONFIGURASI FIREBASE ANDA 
+        // KONFIGURASI FIREBASE ANDA
         const firebaseConfig = {
             apiKey: "AIzaSyBrJcVh3GJfY9WGzjDAYODlVSY2QI5JTXc", 
             authDomain: "monitoring-stoolplant.firebaseapp.com", 
             databaseURL: "https://monitoring-stoolplant-default-rtdb.asia-southeast1.firebasedatabase.app", 
             projectId: "monitoring-stoolplant", 
             storageBucket: "monitoring-stoolplant.appspot.com",
-            messagingSenderId: "..."
+            // Anda bisa menghapus messagingSenderId jika tidak digunakan
         };
 
         // Inisialisasi Firebase dan Database
