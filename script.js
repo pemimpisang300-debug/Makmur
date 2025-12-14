@@ -39,13 +39,13 @@ let supervisorName = "";
 let sortDirectionMaster = 1; 
 let currentSortColumnMaster = -1;
 
-// --- ELEMEN HTML YANG DIBUTUHKAN ---
+// --- ELEMEN HTML YANG DIBUTUHKAN (Sesuai dengan ID di Langkah 1) ---
 const nurseryInput = document.getElementById('nursery-name');
 const supervisorInput = document.getElementById('supervisor-name');
 const formPerawatan = document.getElementById('form-perawatan');
 const riwayatBody = document.querySelector('#table-riwayat-perawatan tbody');
 const searchInput = document.getElementById('search-input'); 
-const selectBlock = document.getElementById('Block');
+const selectBlock = document.getElementById('Block'); // Untuk form perawatan
 const masterSandbedBody = document.querySelector('#table-sandbed-list tbody');
 const formMasterSandbed = document.getElementById('form-master-sandbed');
 const searchMasterInput = document.getElementById('search-master-input'); 
@@ -65,23 +65,20 @@ function getDataMasterSandbed() {
 }
 
 function loadDataFromLocalStorage() {
-    // Kunci data sandbed dan perawatan kini unik per nursery ID
     const sandbedKey = 'masterSandbedData_' + CURRENT_NURSERY_ID;
     const perawatanKey = 'dataPerawatanData_' + CURRENT_NURSERY_ID;
     
-    // Header info (nama nursery/supervisor) bisa dibiarkan global atau dibuat unik
     const storedNursery = localStorage.getItem('nurseryName');
     const storedSupervisor = localStorage.getItem('supervisorName');
 
     const storedSandbed = localStorage.getItem(sandbedKey);
     const storedPerawatan = localStorage.getItem(perawatanKey);
     
-    // Pastikan masterSandbed dan dataPerawatan menggunakan data yang diisolasi
     if (storedSandbed) {
         masterSandbed = JSON.parse(storedSandbed);
     } else {
-        // Jika tidak ada data yang diisolasi, gunakan data inisial sebagai default awal (HANYA SEKALI)
-        saveDataToLocalStorage();
+        // Jika tidak ada data yang diisolasi, gunakan data inisial
+        saveDataToLocalStorage(); 
     }
     
     if (storedPerawatan) {
@@ -110,7 +107,7 @@ function saveDataToLocalStorage() {
 }
 
 
-// --- FUNGSI RUMUS OTOMATIS (Tidak ada perubahan) ---
+// --- FUNGSI RUMUS OTOMATIS ---
 function hitungUmurMP(bulanTanamStr) {
     if (!bulanTanamStr) return 'N/A';
     const bulanTanam = new Date(bulanTanamStr + '-01'); 
@@ -163,7 +160,6 @@ window.toggleSupervisorMode = function(mode) {
         document.getElementById('supervisorKeyInput').value = ''; 
     }
     
-    // Selalu render ulang tabel setelah status keamanan berubah
     renderMasterSandbedTable(searchMasterInput ? searchMasterInput.value : ''); 
 }
 
@@ -176,7 +172,6 @@ function renderMasterSandbedTable(searchText = '') {
     masterSandbedBody.innerHTML = ''; 
     const filterText = searchText.toLowerCase().trim();
 
-    // Pastikan masterSandbed dimuat dari LocalStorage sebelum filter
     masterSandbed = getDataMasterSandbed(); 
 
     const filteredMasterData = masterSandbed.filter(data => {
@@ -212,7 +207,6 @@ function renderMasterSandbedTable(searchText = '') {
         const actionCell = row.insertCell(11); 
         
         if (isSupervisorMode) { 
-            // Tampilkan tombol Edit/Hapus
             const editButton = document.createElement('button');
             editButton.innerText = 'Edit';
             editButton.classList.add('btn-edit-master');
@@ -236,7 +230,6 @@ function renderMasterSandbedTable(searchText = '') {
 function editSandbed(event) { 
     if (!isSupervisorMode) return alert('Akses ditolak. Masuk mode Supervisor untuk mengedit.');
     const idToEdit = event.currentTarget.dataset.sandbedId;
-    // Gunakan fungsi getDataMasterSandbed() untuk memastikan data terbaru
     const sandbedData = getDataMasterSandbed().find(sandbed => sandbed.id === idToEdit);
 
     if (sandbedData) {
@@ -272,12 +265,11 @@ function deleteSandbed(event) {
     }
 }
 
-// FUNGSI RENDER TABLE RIWAYAT (Memuat data perawatan)
+// FUNGSI RENDER TABLE RIWAYAT
 function renderTable(searchText = '') {
     riwayatBody.innerHTML = ''; 
     const filterText = searchText.toLowerCase().trim();
 
-    // Memuat data perawatan (juga berdasarkan nursery ID)
     const perawatanKey = 'dataPerawatanData_' + CURRENT_NURSERY_ID;
     const storedPerawatan = localStorage.getItem(perawatanKey);
     dataPerawatan = storedPerawatan ? JSON.parse(storedPerawatan) : [];
@@ -319,7 +311,7 @@ window.sortTableMaster = function(columnIndex) {
     let key;
     let isNumeric = false;
     
-    masterSandbed = getDataMasterSandbed(); // Ambil data terbaru sebelum sorting
+    masterSandbed = getDataMasterSandbed(); 
 
     switch (columnIndex) {
         case 1: key = 'block'; break;
@@ -411,7 +403,7 @@ function importCsvData() {
         let failedCount = 0;
         let updatedCount = 0;
 
-        masterSandbed = getDataMasterSandbed(); // Ambil data saat ini (termasuk yang ada di LS)
+        masterSandbed = getDataMasterSandbed(); 
 
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(delimiter).map(v => v.trim().replace(/"/g, '')); 
@@ -475,7 +467,7 @@ function importCsvData() {
 
 // --- EVENT LISTENERS ---
 
-// NEW: Event Listeners untuk Header Info
+// Event Listeners untuk Header Info
 nurseryInput.addEventListener('input', function() {
     nurseryName = this.value;
     saveDataToLocalStorage();
@@ -503,11 +495,10 @@ btnImportData.addEventListener('click', importCsvData);
 
 
 // EVENT LISTENER MASTER SANDBED (Tambah/Update) 
-// *** BLOK INI TELAH DIPERBAIKI UNTUK MEMASTIKAN REFRESH TABEL BERHASIL DAN MENAMBAHKAN VALIDASI LENGKAP***
 formMasterSandbed.addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // --- VALIDASI INPUT KERAS ULANG ---
+    // --- VALIDASI INPUT KERAS ULANG (ID DI SINI SUDAH SINKRON DENGAN HTML DI LANGKAH 1) ---
     const block = document.getElementById('master-block').value;
     const id = document.getElementById('master-id').value.toUpperCase(); 
     const clone = document.getElementById('master-clone').value;
@@ -528,4 +519,22 @@ formMasterSandbed.addEventListener('submit', function(e) {
     
     const stdQty = parseInt(stdQtyStr);
     const afkir = parseInt(afkirStr);
-    const sulam = pa
+    const sulam = parseInt(sulamStr);
+
+    masterSandbed = getDataMasterSandbed(); // Muat data terbaru sebelum modifikasi
+
+    if (isEditing) {
+        if (!isSupervisorMode) {
+             alert('Akses ditolak. Masuk mode Supervisor untuk mengubah Master Data.');
+             return;
+        }
+        
+        const index = masterSandbed.findIndex(sandbed => sandbed.id === currentEditId);
+        if (index !== -1) {
+            masterSandbed[index].block = block;
+            masterSandbed[index].clone = clone;
+            masterSandbed[index].bulanTanam = bulanTanam;
+            masterSandbed[index].stdQty = stdQty;
+            masterSandbed[index].afkir = afkir;
+            masterSandbed[index].sulam = sulam;
+           
