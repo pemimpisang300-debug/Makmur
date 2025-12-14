@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Monitoring Sandbed Stoolplant Riau</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        h1 { text-align: center; color: #007bff; margin-bottom: 30px; }
+        body { font-family: Arial, sans-serif; background-color: #f4ffec; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 100, 0, 0.2); border-left: 5px solid #00a000; }
+        h1 { text-align: center; color: #00a000; margin-bottom: 30px; }
         .nursery-list { list-style: none; padding: 0; }
-        .nursery-item { background: #e9ecef; margin-bottom: 10px; padding: 15px; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
-        .nursery-item:hover { background: #dee2e6; }
-        .nursery-item a { text-decoration: none; color: #333; font-weight: bold; display: block; }
+        .nursery-item { background: #e6ffe6; margin-bottom: 12px; padding: 18px; border-radius: 6px; cursor: pointer; transition: background 0.3s, transform 0.2s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .nursery-item:hover { background: #ccffcc; transform: translateY(-2px); }
+        .nursery-item a { text-decoration: none; color: #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .nursery-item a::after { content: '➔'; color: #00a000; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -21,7 +22,7 @@
         <ul id="nursery-list" class="nursery-list">
             </ul>
         
-        <p style="text-align: center; margin-top: 30px; font-style: italic;">Klik pada Nursery untuk masuk ke halaman monitoring spesifik.</p>
+        <p style="text-align: center; margin-top: 30px; font-style: italic; color: #555;">Klik pada Nursery untuk masuk ke halaman monitoring spesifik.</p>
     </div>
 
     <script>
@@ -51,7 +52,6 @@
             { id: "V22", name: "Nursery V Kubu" },
             { id: "W23", name: "Nursery W Koto Gasib" },
             { id: "X24", name: "Nursery X Meranti" }
-            // Ganti ID/Nama ini sesuai daftar 24 Nursery yang sebenarnya
         ];
 
         const listElement = document.getElementById('nursery-list');
@@ -63,7 +63,7 @@
             // Link ke halaman monitoring.html dengan parameter ID Nursery
             const link = document.createElement('a');
             link.href = `monitoring.html?nursery=${nursery.id}`;
-            link.textContent = `${nursery.id} - ${nursery.name}`;
+            link.innerHTML = `<span>${nursery.id} - ${nursery.name}</span>`;
             
             listItem.appendChild(link);
             listElement.appendChild(listItem);
