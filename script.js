@@ -4,8 +4,8 @@ const PERIODE_SAAT_INI = new Date();
 PERIODE_SAAT_INI.setDate(1); 
 
 // === START: PENGAMANAN DAN ISOLASI DATA MULTI-NURSERY ===
-const SUPERVISOR_KEY = "makmur2025"; 
-let isSupervisorMode = false; // Mode terkunci secara default
+// SUPERVISOR KEY DIHAPUS
+let isSupervisorMode = true; // Set ke TRUE agar fungsi Edit/Hapus selalu aktif
 
 let CURRENT_NURSERY_ID = 'DEFAULT'; 
 
@@ -19,11 +19,10 @@ function getURLNurseryID() {
     }
 }
 
-// Tetapkan ID Nursery Saat Ini
-CURRENT_NURSERY_ID = getURLNURSERY_ID();
+CURRENT_NURSERY_ID = getURLNurseryID();
 // === END: PENGAMANAN DAN ISOLASI DATA MULTI-NURSERY ===
 
-// Variabel data kini kosong, data akan langsung dimuat dari Firebase
+// Data inisial (akan ditimpa jika ada data di LocalStorage)
 let masterSandbed = []; 
 let dataPerawatan = []; 
 let nurseryName = "";
@@ -48,88 +47,47 @@ const btnImportData = document.getElementById('btn-import-data');
 const fileInfo = document.getElementById('file-info');
 
 
-// --- FUNGSI FIREBASE (PENGGANTI LOCAL STORAGE) ---
+// --- FUNGSI LOCAL STORAGE ---
 
-// Fungsi yang dipanggil saat data berubah di database
-function startDataListener() {
-    // Path: /MASTER_SANDBED/[NURSERY_ID]
-    const masterRef = database.ref('MASTER_SANDBED/' + CURRENT_NURSERY_ID);
-    
-    // Membaca data Sandbed
-    masterRef.on('value', (snapshot) => {
-        const dataObject = snapshot.val();
-        masterSandbed = [];
-        
-        if (dataObject) {
-            // Konversi object Firebase ke array
-            Object.keys(dataObject).forEach(key => {
-                masterSandbed.push(dataObject[key]);
-            });
-        }
-        console.log("Data Master Sandbed dimuat dari Firebase. Jumlah data:", masterSandbed.length);
-        renderMasterSandbedTable(searchMasterInput.value);
-        // Memastikan Block options untuk Form Perawatan diperbarui
-        updateBlockSelectOptions(); 
-    });
+function loadDataFromLocalStorage() {
+    // Memuat Data Master Sandbed
+    const masterDataJson = localStorage.getItem('masterSandbed_' + CURRENT_NURSERY_ID);
+    if (masterDataJson) {
+        masterSandbed = JSON.parse(masterDataJson);
+    } else {
+         // Jika Local Storage kosong, muat data inisial yang lama
+         masterSandbed = [
+             { block: "Block A", id: "MKRUS001", plot: "N/A", clone: "AC00065AA", bulanTanam: "2023-12", stdQty: 2352, afkir: 352, sulam: 2 },
+             { block: "Block B", id: "MKRUS002", plot: "N/A", clone: "AB00075AB", bulanTanam: "2024-01", stdQty: 1800, afkir: 150, sulam: 5 },
+         ];
+    }
 
-    // Path: /RIWAYAT_PERAWATAN/[NURSERY_ID]
-    const perawatanRef = database.ref('RIWAYAT_PERAWATAN/' + CURRENT_NURSERY_ID);
+    // Memuat Data Riwayat Perawatan
+    const perawatanDataJson = localStorage.getItem('dataPerawatan_' + CURRENT_NURSERY_ID);
+    if (perawatanDataJson) {
+        dataPerawatan = JSON.parse(perawatanDataJson);
+    } else {
+        dataPerawatan = []; // Kosongkan riwayat jika tidak ada data
+    }
     
-    // Membaca data Perawatan
-    perawatanRef.on('value', (snapshot) => {
-        const dataObject = snapshot.val();
-        dataPerawatan = [];
-        
-        if (dataObject) {
-            Object.keys(dataObject).forEach(key => {
-                dataPerawatan.push(dataObject[key]);
-            });
-        }
-        console.log("Data Perawatan dimuat dari Firebase. Jumlah data:", dataPerawatan.length);
-        renderTable(searchInput.value); 
-    });
-    
-    // Memuat Header Info (tetap pakai LocalStorage karena ini non-kritis)
+    // Memuat Header Info
     nurseryName = localStorage.getItem('nurseryName_' + CURRENT_NURSERY_ID) || '';
     supervisorName = localStorage.getItem('supervisorName_' + CURRENT_NURSERY_ID) || '';
     nurseryInput.value = nurseryName;
     supervisorInput.value = supervisorName;
-}
-
-
-// Menyimpan Data Master Sandbed ke Firebase
-function saveMasterSandbedToFirebase(dataArray) {
-    const dataObject = {};
-    dataArray.forEach(item => {
-        dataObject[item.id] = item; // Menggunakan ID sebagai kunci di Firebase
-    });
-    return database.ref('MASTER_SANDBED/' + CURRENT_NURSERY_ID).set(dataObject)
-        .then(() => {
-            console.log("Master Sandbed berhasil disimpan ke Firebase.");
-        })
-        .catch(error => {
-            console.error("Gagal menyimpan Master Sandbed ke Firebase:", error);
-            alert("Error: Gagal menyimpan Master Sandbed ke Database!");
-        });
-}
-
-// Menyimpan Data Perawatan ke Firebase
-function savePerawatanToFirebase(dataArray) {
-    // Perawatan disimpan sebagai list, menggunakan push untuk kunci unik otomatis
-    const dataObject = {};
-    // Karena kita hanya PUSH data baru, fungsi ini hanya mengupdate semua data
-    dataArray.forEach((item, index) => {
-        dataObject['record_' + index] = item;
-    });
     
-    return database.ref('RIWAYAT_PERAWATAN/' + CURRENT_NURSERY_ID).set(dataObject)
-        .then(() => {
-            console.log("Data Perawatan berhasil disimpan ke Firebase.");
-        })
-        .catch(error => {
-            console.error("Gagal menyimpan Perawatan ke Firebase:", error);
-            alert("Error: Gagal menyimpan Riwayat Perawatan ke Database!");
-        });
+    // Render semua tabel dan opsi setelah data dimuat
+    renderMasterSandbedTable(searchMasterInput.value || '');
+    renderTable(searchInput.value || ''); 
+    updateBlockSelectOptions();
+}
+
+function saveMasterSandbedToLocalStorage() {
+    localStorage.setItem('masterSandbed_' + CURRENT_NURSERY_ID, JSON.stringify(masterSandbed));
+}
+
+function savePerawatanToLocalStorage() {
+    localStorage.setItem('dataPerawatan_' + CURRENT_NURSERY_ID, JSON.stringify(dataPerawatan));
 }
 
 function saveHeaderInfoToLocalStorage() {
@@ -138,7 +96,7 @@ function saveHeaderInfoToLocalStorage() {
 }
 
 
-// --- FUNGSI UTILITY (RUMUS, SORTING, RENDER) ---
+// --- FUNGSI UTILITY (RUMUS, UPDATE SELECT) ---
 
 function hitungUmurMP(bulanTanamStr) {
     if (!bulanTanamStr) return 'N/A';
@@ -148,7 +106,9 @@ function hitungUmurMP(bulanTanamStr) {
     const umur = (diffYears * 12) + diffMonths;
     return umur >= 0 ? umur : 0;
 }
-function hitungTotalStock(stdQty, afkir, sulam) { return stdQty - afkir + sulam; }
+function hitungTotalStock(stdQty, afkir, sulam) { 
+    return parseInt(stdQty) - parseInt(afkir) + parseInt(sulam); 
+}
 function hitungStockingRate(totalStock, stdQty) {
     if (stdQty === 0) return '0%';
     const rate = (totalStock / stdQty) * 100;
@@ -158,12 +118,10 @@ function hitungStockingRate(totalStock, stdQty) {
 function updateBlockSelectOptions() {
     const uniqueBlocks = [...new Set(masterSandbed.map(item => item.block))].sort();
     
-    // Hapus semua opsi lama (kecuali opsi default)
     while (selectBlock.options.length > 1) {
         selectBlock.remove(1);
     }
     
-    // Tambahkan opsi baru
     uniqueBlocks.forEach(block => {
         const option = document.createElement('option');
         option.value = block;
@@ -172,45 +130,7 @@ function updateBlockSelectOptions() {
     });
 }
 
-// --- FUNGSI KEAMANAN (Kunci Supervisor) ---
-
-window.verifySupervisorKey = function() {
-    const inputKey = document.getElementById('supervisorKeyInput').value;
-    if (inputKey === SUPERVISOR_KEY) {
-        toggleSupervisorMode(true);
-        alert("Akses Supervisor Dibuka. Anda dapat mengedit/menghapus data Master.");
-        document.getElementById('supervisorKeyInput').value = ''; 
-    } else {
-        alert("Kunci Rahasia Salah! Akses ditolak.");
-        toggleSupervisorMode(false); 
-    }
-}
-
-window.toggleSupervisorMode = function(mode) {
-    isSupervisorMode = mode;
-    const btnLockUnlock = document.getElementById('btnLockUnlock');
-    const securityStatus = document.getElementById('securityStatus');
-    
-    if (isSupervisorMode) {
-        securityStatus.innerText = 'AKSES TERBUKA (Supervisor)';
-        securityStatus.style.color = 'green';
-        btnLockUnlock.innerText = 'Kunci Kembali';
-        btnLockUnlock.classList.remove('btn-danger');
-        btnLockUnlock.classList.add('btn-success');
-        btnLockUnlock.setAttribute('onclick', 'toggleSupervisorMode(false)'); 
-    } else {
-        securityStatus.innerText = 'AKSES TERKUNCI';
-        securityStatus.style.color = 'red';
-        btnLockUnlock.innerText = 'Buka Kunci';
-        btnLockUnlock.classList.remove('btn-success');
-        btnLockUnlock.classList.add('btn-danger');
-        btnLockUnlock.setAttribute('onclick', 'verifySupervisorKey()');
-        document.getElementById('supervisorKeyInput').value = ''; 
-    }
-    
-    // Render ulang tabel untuk menampilkan/menyembunyikan tombol aksi
-    renderMasterSandbedTable(searchMasterInput ? searchMasterInput.value : ''); 
-}
+// FUNGSI KEAMANAN DIHAPUS, DIGANTIKAN DENGAN isSupervisorMode = true;
 
 
 // --- FUNGSI RENDER TABEL MASTER ---
@@ -253,29 +173,25 @@ function renderMasterSandbedTable(searchText = '') {
 
         const actionCell = row.insertCell(11); 
         
-        if (isSupervisorMode) { 
-            const editButton = document.createElement('button');
-            editButton.innerText = 'Edit';
-            editButton.classList.add('btn-edit-master');
-            editButton.dataset.sandbedId = data.id; 
-            editButton.addEventListener('click', editSandbed);
-            actionCell.appendChild(editButton);
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.innerText = 'Hapus';
-            deleteButton.classList.add('btn-hapus-master');
-            deleteButton.dataset.sandbedId = data.id; 
-            deleteButton.addEventListener('click', deleteSandbed);
-            actionCell.appendChild(deleteButton);
-        } else {
-             actionCell.innerText = 'Terkunci'; 
-        }
+        // Mode Edit/Hapus Selalu Aktif
+        const editButton = document.createElement('button');
+        editButton.innerText = 'Edit';
+        editButton.classList.add('btn-edit-master');
+        editButton.dataset.sandbedId = data.id; 
+        editButton.addEventListener('click', editSandbed);
+        actionCell.appendChild(editButton);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Hapus';
+        deleteButton.classList.add('btn-hapus-master');
+        deleteButton.dataset.sandbedId = data.id; 
+        deleteButton.addEventListener('click', deleteSandbed);
+        actionCell.appendChild(deleteButton);
     });
 }
 
 
 function editSandbed(event) { 
-    if (!isSupervisorMode) return alert('Akses ditolak. Masuk mode Supervisor untuk mengedit.');
     const idToEdit = event.currentTarget.dataset.sandbedId;
     const sandbedData = masterSandbed.find(sandbed => sandbed.id === idToEdit);
 
@@ -301,14 +217,16 @@ function editSandbed(event) {
 }
 
 function deleteSandbed(event) { 
-    if (!isSupervisorMode) return alert('Akses ditolak. Masuk mode Supervisor untuk menghapus.');
     const idToDelete = event.currentTarget.dataset.sandbedId;
     if (confirm(`Apakah Anda yakin ingin menghapus Sandbed ID: ${idToDelete}?`)) {
         masterSandbed = masterSandbed.filter(sandbed => sandbed.id !== idToDelete);
         
-        // Simpan perubahan ke Firebase
-        saveMasterSandbedToFirebase(masterSandbed); 
+        saveMasterSandbedToLocalStorage(); 
         alert(`Sandbed ID ${idToDelete} berhasil dihapus.`);
+        
+        // Render ulang data
+        renderMasterSandbedTable(searchMasterInput.value);
+        updateBlockSelectOptions();
     }
 }
 
@@ -417,7 +335,6 @@ supervisorInput.addEventListener('input', function() {
 formMasterSandbed.addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // --- VALIDASI INPUT KERAS ULANG ---
     const block = document.getElementById('master-block').value;
     const id = document.getElementById('master-id').value.toUpperCase(); 
     const clone = document.getElementById('master-clone').value;
@@ -430,11 +347,6 @@ formMasterSandbed.addEventListener('submit', function(e) {
         alert("VALIDASI GAGAL: Semua kolom Master Data wajib diisi.");
         return; 
     }
-
-    if (isNaN(stdQtyStr) || isNaN(afkirStr) || isNaN(sulamStr)) {
-        alert("VALIDASI GAGAL: Kolom Jumlah Standar MP, Afkir, dan Sulam hanya boleh diisi dengan angka.");
-        return; 
-    }
     
     const stdQty = parseInt(stdQtyStr);
     const afkir = parseInt(afkirStr);
@@ -442,10 +354,6 @@ formMasterSandbed.addEventListener('submit', function(e) {
 
 
     if (isEditing) {
-        if (!isSupervisorMode) {
-             alert('Akses ditolak. Masuk mode Supervisor untuk mengubah Master Data.');
-             return;
-        }
         
         const index = masterSandbed.findIndex(sandbed => sandbed.id === currentEditId);
         if (index !== -1) {
@@ -463,26 +371,23 @@ formMasterSandbed.addEventListener('submit', function(e) {
         document.getElementById('btn-tambah-sandbed').innerText = 'Tambah Sandbed Baru';
 
     } else {
-        if (!isSupervisorMode) {
-             alert('Akses ditolak. Masuk mode Supervisor untuk menambah Master Data baru.');
-             return;
-        }
-
         const isDuplicate = masterSandbed.some(sandbed => sandbed.id === id);
         if (isDuplicate) {
             alert(`VALIDASI GAGAL: Sandbed ID ${id} sudah ada dalam daftar. Gunakan ID unik.`);
             return;
         }
 
-        const newSandbed = { block, id, plot: 'N/A', clone, bulanTanam, stdQty, afkir, sulam };
+        const newSandbed = { id: id, block: block, plot: 'N/A', clone: clone, bulanTanam: bulanTanam, stdQty: stdQty, afkir: afkir, sulam: sulam };
         masterSandbed.push(newSandbed);
         alert(`Sandbed ID ${id} berhasil ditambahkan!`);
     }
 
-    // --- FUNGSI BARU UNTUK SAVE KE FIREBASE ---
-    saveMasterSandbedToFirebase(masterSandbed); 
+    saveMasterSandbedToLocalStorage(); 
     formMasterSandbed.reset();
-    // renderMasterSandbedTable() akan dipanggil otomatis oleh listener Firebase
+    
+    // Render ulang data
+    renderMasterSandbedTable(searchMasterInput.value);
+    updateBlockSelectOptions(); 
 });
 
 
@@ -509,23 +414,118 @@ formPerawatan.addEventListener('submit', function(e) {
     };
 
     dataPerawatan.push(dataBaru);
-    savePerawatanToFirebase(dataPerawatan); 
+    savePerawatanToLocalStorage(); 
     formPerawatan.reset();
     
     alert(`Perawatan ${jenisPerawatan} di ${block} berhasil direkam!`);
     
-    // renderTable() akan dipanggil otomatis oleh listener Firebase
+    // Render ulang data
+    renderTable(searchInput.value);
 });
 
 
 // EVENT LISTENER PENCARIAN RIWAYAT
 searchInput.addEventListener('input', function() {
-    renderTable(searchInput.value); 
+    renderTable(searchInput.value || ''); 
 });
 
 // EVENT LISTENER PENCARIAN MASTER SANDBED
 searchMasterInput.addEventListener('input', function() {
-    renderMasterSandbedTable(searchMasterInput.value); 
+    renderMasterSandbedTable(searchMasterInput.value || ''); 
 });
 
-// --- FUNGSI IMPO
+// --- FUNGSI IMPORT/EXPORT ---
+
+// Fungsi untuk mengunduh CSV (tetap pertahankan)
+btnDownloadFormat.addEventListener('click', function() {
+    const dataToExport = masterSandbed; 
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+
+    // Header CSV (Ganti Plot dengan Clone jika perlu)
+    const headers = ["Block", "ID Sandbed", "Clone", "Bulan Tanam", "Std Qty", "Afkir", "Sulam"];
+    csvContent += headers.join(";") + "\r\n";
+
+    // Data CSV
+    dataToExport.forEach(item => {
+        const row = [
+            `"${item.block}"`, 
+            `"${item.id}"`, 
+            `"${item.clone}"`, 
+            `"${item.bulanTanam}"`, 
+            item.stdQty, 
+            item.afkir, 
+            item.sulam
+        ].join(";"); 
+        csvContent += row + "\r\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `MasterSandbed_${CURRENT_NURSERY_ID}_Export.csv`);
+    document.body.appendChild(link); // Diperlukan untuk Firefox
+    link.click();
+    document.body.removeChild(link);
+});
+
+// Fungsi Import (tetap pertahankan)
+importFile.addEventListener('change', function() {
+    if (this.files.length > 0) {
+        btnImportData.disabled = false;
+        fileInfo.innerText = `File terpilih: ${this.files[0].name}`;
+    } else {
+        btnImportData.disabled = true;
+        fileInfo.innerText = '';
+    }
+});
+
+btnImportData.addEventListener('click', function() {
+    const file = importFile.files[0];
+    if (!file) {
+        alert("Pilih file CSV terlebih dahulu.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const lines = csv.split('\n').filter(line => line.trim() !== '');
+
+        if (lines.length <= 1) {
+            alert("File CSV kosong atau hanya berisi header.");
+            return;
+        }
+
+        // Asumsi format CSV: Block;ID Sandbed;Clone;Bulan Tanam;Std Qty;Afkir;Sulam
+        // Baris 0 adalah Header
+        const importedData = [];
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(';'); 
+            if (values.length >= 7) { 
+                importedData.push({
+                    block: values[0].replace(/"/g, '').trim(),
+                    id: values[1].replace(/"/g, '').trim().toUpperCase(),
+                    clone: values[2].replace(/"/g, '').trim(),
+                    bulanTanam: values[3].replace(/"/g, '').trim(),
+                    stdQty: parseInt(values[4]) || 0,
+                    afkir: parseInt(values[5]) || 0,
+                    sulam: parseInt(values[6]) || 0,
+                });
+            }
+        }
+
+        if (confirm(`Akan mengimpor/menimpa ${importedData.length} data Master Sandbed. Lanjutkan?`)) {
+            masterSandbed = importedData; 
+            saveMasterSandbedToLocalStorage();
+            renderMasterSandbedTable(searchMasterInput.value);
+            updateBlockSelectOptions();
+            alert(`${importedData.length} data berhasil diimpor dan disimpan secara lokal.`);
+        }
+    };
+    reader.readAsText(file);
+});
+
+
+// --- INITIAL CALLS (Memuat data saat aplikasi pertama kali dibuka) ---
+loadDataFromLocalStorage(); // Mulai memuat data dari Local Storage
+            
