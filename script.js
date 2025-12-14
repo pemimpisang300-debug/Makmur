@@ -29,6 +29,23 @@ let nurseryName = "";
 let supervisorName = "";
 let sortDirectionMaster = 1; 
 let currentSortColumnMaster = -1;
+// ... [Kode sebelumnya di script.js] ...
+
+// Tetapkan ID Nursery Saat Ini
+CURRENT_NURSERY_ID = getURLNurseryID();
+
+// Tampilkan ID Nursery di Judul Halaman
+const titleElement = document.getElementById('page-title');
+if (titleElement) {
+    titleElement.innerText = `Monitoring Sandbed - Nursery ID: ${CURRENT_NURSERY_ID}`;
+}
+const h1Element = document.querySelector('header h1');
+if (h1Element) {
+    h1Element.innerText = `Monitoring Sandbed Stoolplant (Nursery ID: ${CURRENT_NURSERY_ID})`;
+}
+
+// ... [Lanjutkan dengan kode script.js lama (Firebase version)] ...
+
 
 // --- ELEMEN HTML YANG DIBUTUHKAN ---
 const nurseryInput = document.getElementById('nursery-name');
