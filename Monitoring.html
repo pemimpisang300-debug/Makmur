@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Monitoring Sandbed Stoolplant</title>
+    <title id="page-title">Monitoring Sandbed - Loading...</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 
@@ -195,9 +195,28 @@
             </div>
         </section>
 
-    </main>
-    
+        </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <script>
+        // 2. KONFIGURASI FIREBASE ANDA 
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrJcVh3GJfY9WGzjDAYODlVSY2QI5JTXc", 
+            authDomain: "monitoring-stoolplant.firebaseapp.com", 
+            databaseURL: "https://monitoring-stoolplant-default-rtdb.asia-southeast1.firebasedatabase.app", 
+            projectId: "monitoring-stoolplant", 
+            storageBucket: "monitoring-stoolplant.appspot.com",
+            messagingSenderId: "..."
+        };
+
+        // Inisialisasi Firebase dan Database
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = app.database();
+    </script>
+
     <script src="./script.js"></script> 
 
 </body>
-  </html>
+</html>
