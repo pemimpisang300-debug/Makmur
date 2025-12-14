@@ -34,12 +34,7 @@
                         <label for="Block">Block/Lokasi (Sandbed):</label>
                         <select id="Block" required>
                             <option value="">-- Pilih Blok --</option>
-                            <option value="Block A">Block A</option>
-                            <option value="Block B">Block B</option>
-                            <option value="Block C">Block C</option>
-                            <option value="Block D">Block D</option>
-                            <option value="MPH Temporary">MPH Temporary</option>
-                        </select>
+                            </select>
                     </div>
 
                     <div class="form-group">
@@ -90,16 +85,6 @@
         <section id="master-data-sandbed">
             <h2>Master Data Sandbed</h2>
 
-            <div class="card-body" id="SupervisorAccessControl">
-                <label style="font-size: 1.1em; font-weight: bold;">Mode Supervisor (Akses Edit/Hapus Master Data):</label>
-                <div class="input-group mb-3" style="max-width: 300px;">
-                    <input type="password" id="supervisorKeyInput" class="form-control" placeholder="Masukkan Kunci Rahasia">
-                    <div class="input-group-append">
-                        <button class="btn btn-danger" type="button" id="btnLockUnlock" onclick="verifySupervisorKey()">Buka Kunci</button>
-                    </div>
-                </div>
-                <p id="securityStatus" style="color: red; font-weight: bold;">AKSES TERKUNCI</p>
-            </div>
             <form id="form-master-sandbed">
                 <div class="form-container">
                     <div class="form-group">
@@ -154,11 +139,11 @@
                 </div>
                 <input type="file" id="import-file" accept=".csv" style="margin-top: 10px;">
                 <span id="file-info" style="display: block; font-size: 0.9em; margin-top: 5px;"></span>
-                <button class="btn-import" id="btn-import-data" disabled>Import & Update Data</button>
+                <button class="btn-import" id="btn-import-data">Import & Update Data</button>
             </div>
 
 
-            <h3 style="margin-top: 40px;">Daftar Master Sandbed</h3>
+            <h3 style="margin-top: 40px;">Daftar Master Sandbed (Klik baris untuk Edit/Hapus)</h3>
             <div class="search-controls">
                 <input type="text" id="search-master-input" placeholder="Cari Master Sandbed (ID, Block, Clone)...">
             </div>
@@ -211,30 +196,8 @@
         </section>
 
     </main>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-    <script>
-        // 2. KONFIGURASI FIREBASE ANDA (SUDAH DIBERSIHKAN DAN MENGGUNAKAN KUNCI ANDA)
-        const firebaseConfig = {
-            // Kunci API yang Anda berikan
-            apiKey: "AIzaSyBrJcVh3GJfY9WGzjDAYODlVSY2QI5JTXc", 
-            // Asumsi detail proyek
-            authDomain: "monitoring-stoolplant.firebaseapp.com", 
-            databaseURL: "https://monitoring-stoolplant-default-rtdb.asia-southeast1.firebasedatabase.app", 
-            projectId: "monitoring-stoolplant", 
-            storageBucket: "monitoring-stoolplant.appspot.com",
-            messagingSenderId: "..."
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = app.database();
-    </script>
     
     <script src="./script.js"></script> 
 
 </body>
-    </html>
-    
+</html>
